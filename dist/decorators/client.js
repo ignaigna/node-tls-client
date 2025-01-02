@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.verifyClientState = void 0;
+exports.verifyClientState = verifyClientState;
 const tlsError_1 = require("../utils/tlsError");
 function verifyClientState() {
     return function (target, propertyKey, descriptor) {
@@ -16,4 +16,3 @@ function verifyClientState() {
         return descriptor;
     };
 }
-exports.verifyClientState = verifyClientState;

@@ -21,7 +21,7 @@ export declare class Cookies extends CookieJar {
      *    }
      *  }
      */
-    fetchAllCookies(): import("tough-cookie").Cookie.Serialized;
+    fetchAllCookies(): Record<string, Record<string, string>>;
     /**
      * Fetches the cookies for a given URL as an object.
      *

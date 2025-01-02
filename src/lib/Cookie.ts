@@ -26,14 +26,17 @@ export class Cookies extends CookieJar {
    *  }
    */
   public fetchAllCookies() {
-    const cookies = this.serializeSync().cookies;
+    const serialized = this.serializeSync();
+    const cookies = serialized?.cookies || [];
 
-    return cookies.reduce((acc, cookie) => {
+    return cookies.reduce((acc: Record<string, Record<string, string>>, cookie) => {
       const url = `https://${cookie.domain}${cookie.path}`;
       if (!acc[url]) {
         acc[url] = {};
       }
-      acc[url][cookie.key] = cookie.value;
+      if (cookie.key !== undefined && cookie.value !== undefined) {
+          acc[url][cookie.key] = cookie.value;
+      }
       return acc;
     }, {});
   }

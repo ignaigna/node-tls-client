@@ -49,7 +49,7 @@ export declare class Session {
          }
       }
      */
-    get cookies(): import("tough-cookie").Cookie.Serialized;
+    get cookies(): Record<string, Record<string, string>>;
     /**
      * The 'close' method closes the current session.
      *

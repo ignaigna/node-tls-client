@@ -32,28 +32,6 @@ export class Download {
     }
   }
 
-  private formatBytes(bytes: number, decimals = 2): string {
-    if (bytes === 0) return "0 Bytes";
-    const k = 1024;
-    const dm = decimals < 0 ? 0 : decimals;
-    const sizes = ["Bytes", "KB", "MB", "GB", "TB"];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + " " + sizes[i];
-  }
-
-  private progress(downloaded: number, total: number) {
-    const percentage = (downloaded / total) * 100;
-    const progress = Math.floor(percentage / 2);
-    const bar = "█".repeat(progress) + " ".repeat(50 - progress);
-    process.stdout.clearLine(0);
-    process.stdout.cursorTo(0);
-    process.stdout.write(
-      `${logger.stamp} DOWNLOADING:[${bar}] ${percentage.toFixed(
-        2
-      )}% (${this.formatBytes(downloaded)} / ${this.formatBytes(total)})`
-    );
-  }
-
   private async download(url: string, file: WriteStream): Promise<void> {
     return new Promise<void>((resolve, reject) => {
       https
@@ -74,17 +52,12 @@ export class Download {
             response.statusCode >= 200 &&
             response.statusCode < 300
           ) {
-            const totalBytes = parseInt(
-              response.headers["content-length"] || "0",
-              10
-            );
             let downloadedBytes = 0;
 
             response.pipe(file);
 
             response.on("data", (chunk) => {
               downloadedBytes += chunk.length;
-              this.progress(downloadedBytes, totalBytes);
             });
 
             response.on("end", () => {
@@ -92,7 +65,6 @@ export class Download {
                 if (err) {
                   reject(err);
                 } else {
-                  process.stdout.write("\n");
                   resolve();
                 }
               });

@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.fetch = void 0;
+exports.fetch = fetch;
 const _1 = require(".");
 const utils_1 = require("../utils");
 /**
@@ -51,4 +51,3 @@ async function fetch(url, options) {
         await session.close();
     }
 }
-exports.fetch = fetch;

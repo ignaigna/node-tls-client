@@ -15,13 +15,23 @@ var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (
 }) : function(o, v) {
     o["default"] = v;
 });
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
-    __setModuleDefault(result, mod);
-    return result;
-};
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
@@ -53,23 +63,6 @@ class Download {
             logger_1.logger.error(`Initialization failed: ${error}`);
         }
     }
-    formatBytes(bytes, decimals = 2) {
-        if (bytes === 0)
-            return "0 Bytes";
-        const k = 1024;
-        const dm = decimals < 0 ? 0 : decimals;
-        const sizes = ["Bytes", "KB", "MB", "GB", "TB"];
-        const i = Math.floor(Math.log(bytes) / Math.log(k));
-        return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + " " + sizes[i];
-    }
-    progress(downloaded, total) {
-        const percentage = (downloaded / total) * 100;
-        const progress = Math.floor(percentage / 2);
-        const bar = "█".repeat(progress) + " ".repeat(50 - progress);
-        process.stdout.clearLine(0);
-        process.stdout.cursorTo(0);
-        process.stdout.write(`${logger_1.logger.stamp} DOWNLOADING:[${bar}] ${percentage.toFixed(2)}% (${this.formatBytes(downloaded)} / ${this.formatBytes(total)})`);
-    }
     async download(url, file) {
         return new Promise((resolve, reject) => {
             https_1.default
@@ -85,12 +78,10 @@ class Download {
                 else if (response.statusCode &&
                     response.statusCode >= 200 &&
                     response.statusCode < 300) {
-                    const totalBytes = parseInt(response.headers["content-length"] || "0", 10);
                     let downloadedBytes = 0;
                     response.pipe(file);
                     response.on("data", (chunk) => {
                         downloadedBytes += chunk.length;
-                        this.progress(downloadedBytes, totalBytes);
                     });
                     response.on("end", () => {
                         file.close((err) => {
@@ -98,7 +89,6 @@ class Download {
                                 reject(err);
                             }
                             else {
-                                process.stdout.write("\n");
                                 resolve();
                             }
                         });
