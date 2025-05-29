@@ -29,7 +29,7 @@ class Response {
     /**
      * Returns the body of the response as a JSON object.
      *
-     * @typeparam T - The type of the JSON object.
+     * @template T - The type of the JSON object.
      * @returns A promise that resolves with the body of the response as a JSON object.
      */
     async json() {

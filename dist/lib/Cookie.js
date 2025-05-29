@@ -25,10 +25,16 @@ class Cookies extends tough_cookie_1.CookieJar {
      *      "cookieB": "valueB"
      *    }
      *  }
-     */
-    fetchAllCookies() {
-        const cookies = this.serializeSync().cookies;
+     */ fetchAllCookies() {
+        const serialized = this.serializeSync();
+        const cookies = serialized?.cookies;
+        if (!cookies) {
+            return {};
+        }
         return cookies.reduce((acc, cookie) => {
+            if (!cookie.domain || !cookie.path || !cookie.key || !cookie.value) {
+                return acc;
+            }
             const url = `https://${cookie.domain}${cookie.path}`;
             if (!acc[url]) {
                 acc[url] = {};

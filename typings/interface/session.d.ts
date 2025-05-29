@@ -1,4 +1,3 @@
-/// <reference types="node" />
 import { IncomingHttpHeaders, OutgoingHttpHeaders } from "http";
 /**
  * Represents various settings for HTTP/2 (h2) protocol.

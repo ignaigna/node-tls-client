@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.load = void 0;
+exports.load = load;
 const path_1 = __importDefault(require("path"));
 const fs_1 = __importDefault(require("fs"));
 const os_1 = __importDefault(require("os"));
@@ -29,7 +29,6 @@ async function load() {
         destroySession: lib.func("destroySession", "string", ["string"]),
     };
 }
-exports.load = load;
 function fileInfo() {
     const platform = process.platform;
     const arch = process.arch;
