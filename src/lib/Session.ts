@@ -24,8 +24,7 @@ import {
 import { OutgoingHttpHeaders } from "http";
 import { isByteRequest, TlsClientError } from "../utils";
 import { verifyClientState } from "../decorators";
-import { Cookies, Response } from ".";
-import workerpool from "workerpool";
+import { Cookies, Response, Client } from ".";
 
 const __version__ = "1.0.0";
 
@@ -54,10 +53,9 @@ export class Session {
   private alpnProtocols?: string[];
   private alpsProtocols: string[];
   private timeout: number | null;
-  private disableIPV6: boolean;
-  private disableIPV4: boolean;
+  private disableIPV6: boolean;  private disableIPV4: boolean;
   private jar: Cookies;
-  private pool?: workerpool.Pool;
+  private client: Client;
 
   public isReady: boolean = false;
   constructor(options?: SessionOptions) {
@@ -106,20 +104,15 @@ export class Session {
             }
           }
         }
-      }
-    } else {
+      }    } else {
       this.jar = new Cookies();
     }
-  }
-
-  public async init(): Promise<boolean> {
+    this.client = new Client();
+  }  public async init(): Promise<boolean> {
     if (this.isReady) return true;
 
     try {
-      if (!this.pool) {
-        this.pool = workerpool.pool(require.resolve("../utils/worker"));
-      }
-
+      await this.client.init();
       this.isReady = true;
       return true;
     } catch (error) {
@@ -147,36 +140,17 @@ export class Session {
    */
   public get cookies() {
     return this.jar.fetchAllCookies();
-  }
-
-  /**
+  }  /**
    * The 'close' method closes the current session.
-   *
-   * @returns The response from the 'destroySession' function.
    */
   @verifyClientState()
   public async close() {
     const payload = JSON.stringify({
       sessionId: this.sessionId,
     });
-    const response = await this.pool?.exec("destroySession", [payload]);
-    await this.pool?.terminate();
+    const response = await this.client.destroySession(payload);
     return response;
   }
-
-  /**
-   * The 'freeMemory' method frees the memory used by the session with the provided id.
-   *
-   * @param id - The id of the session to free the memory of.
-   *
-   * @returns The response from the 'destroySession' function.
-   */
-  @verifyClientState()
-  private async free(id: string): Promise<void> {
-    await this.pool?.exec("freeMemory", [id]);
-    return;
-  }
-
   /**
    * The 'get' method performs a GET request to the provided URL with the provided options.
    *
@@ -395,17 +369,13 @@ export class Session {
         alpnProtocols: this.alpnProtocols,
         alpsProtocols: this.alpsProtocols,
       };
-    } else skeletonPayload["tlsClientIdentifier"] = ClientIdentifier.chrome_131;
+    } else skeletonPayload["tlsClientIdentifier"] = ClientIdentifier.chrome_131;    const requestPayloadString = JSON.stringify(skeletonPayload);
 
-    const requestPayloadString = JSON.stringify(skeletonPayload);
-
-    let res: TlsResponse = await this.pool?.exec("request", [
-      requestPayloadString,
-    ]);
+    let res: TlsResponse = await this.client.request(requestPayloadString);
 
     let cookies = this.jar.syncCookies(res?.cookies, url);
 
-    await this.free(res.id);
+    await this.client.freeMemory(res.id);
 
     return new Response({ ...res, cookies });
   }

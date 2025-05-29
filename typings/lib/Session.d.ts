@@ -28,7 +28,7 @@ export declare class Session {
     private disableIPV6;
     private disableIPV4;
     private jar;
-    private pool?;
+    private client;
     isReady: boolean;
     constructor(options?: SessionOptions);
     init(): Promise<boolean>;
@@ -49,21 +49,10 @@ export declare class Session {
          }
       }
      */
-    get cookies(): Record<string, Record<string, string>>;
-    /**
+    get cookies(): Record<string, Record<string, string>>; /**
      * The 'close' method closes the current session.
-     *
-     * @returns The response from the 'destroySession' function.
      */
-    close(): Promise<any>;
-    /**
-     * The 'freeMemory' method frees the memory used by the session with the provided id.
-     *
-     * @param id - The id of the session to free the memory of.
-     *
-     * @returns The response from the 'destroySession' function.
-     */
-    private free;
+    close(): Promise<string>;
     /**
      * The 'get' method performs a GET request to the provided URL with the provided options.
      *

@@ -8,9 +8,6 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Session = void 0;
 const crypto_1 = require("crypto");
@@ -18,7 +15,6 @@ const session_1 = require("../interface/session");
 const utils_1 = require("../utils");
 const decorators_1 = require("../decorators");
 const _1 = require(".");
-const workerpool_1 = __importDefault(require("workerpool"));
 const __version__ = "1.0.0";
 class Session {
     sessionId;
@@ -48,7 +44,7 @@ class Session {
     disableIPV6;
     disableIPV4;
     jar;
-    pool;
+    client;
     isReady = false;
     constructor(options) {
         this.sessionId = (0, crypto_1.randomUUID)();
@@ -101,14 +97,13 @@ class Session {
         else {
             this.jar = new _1.Cookies();
         }
+        this.client = new _1.Client();
     }
     async init() {
         if (this.isReady)
             return true;
         try {
-            if (!this.pool) {
-                this.pool = workerpool_1.default.pool(require.resolve("../utils/worker"));
-            }
+            await this.client.init();
             this.isReady = true;
             return true;
         }
@@ -136,30 +131,15 @@ class Session {
      */
     get cookies() {
         return this.jar.fetchAllCookies();
-    }
-    /**
+    } /**
      * The 'close' method closes the current session.
-     *
-     * @returns The response from the 'destroySession' function.
      */
     async close() {
         const payload = JSON.stringify({
             sessionId: this.sessionId,
         });
-        const response = await this.pool?.exec("destroySession", [payload]);
-        await this.pool?.terminate();
+        const response = await this.client.destroySession(payload);
         return response;
-    }
-    /**
-     * The 'freeMemory' method frees the memory used by the session with the provided id.
-     *
-     * @param id - The id of the session to free the memory of.
-     *
-     * @returns The response from the 'destroySession' function.
-     */
-    async free(id) {
-        await this.pool?.exec("freeMemory", [id]);
-        return;
     }
     /**
      * The 'get' method performs a GET request to the provided URL with the provided options.
@@ -363,11 +343,9 @@ class Session {
         else
             skeletonPayload["tlsClientIdentifier"] = session_1.ClientIdentifier.chrome_131;
         const requestPayloadString = JSON.stringify(skeletonPayload);
-        let res = await this.pool?.exec("request", [
-            requestPayloadString,
-        ]);
+        let res = await this.client.request(requestPayloadString);
         let cookies = this.jar.syncCookies(res?.cookies, url);
-        await this.free(res.id);
+        await this.client.freeMemory(res.id);
         return new _1.Response({ ...res, cookies });
     }
 }
@@ -378,12 +356,6 @@ __decorate([
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", Promise)
 ], Session.prototype, "close", null);
-__decorate([
-    (0, decorators_1.verifyClientState)(),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
-    __metadata("design:returntype", Promise)
-], Session.prototype, "free", null);
 __decorate([
     (0, decorators_1.verifyClientState)(),
     __metadata("design:type", Function),
