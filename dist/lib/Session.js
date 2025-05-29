@@ -47,7 +47,7 @@ class Session {
     timeout;
     disableIPV6;
     disableIPV4;
-    jar = new _1.Cookies();
+    jar;
     pool;
     isReady = false;
     constructor(options) {
@@ -81,6 +81,26 @@ class Session {
         this.timeout = options?.timeout || 30 * 1000;
         this.disableIPV4 = options?.disableIPV4 ?? false;
         this.disableIPV6 = options?.disableIPV6 ?? false;
+        if (options?.cookieJar) {
+            if (options.cookieJar instanceof _1.Cookies) {
+                this.jar = options.cookieJar;
+            }
+            else {
+                this.jar = new _1.Cookies();
+                const serialized = options.cookieJar.serializeSync();
+                if (serialized?.cookies) {
+                    for (const cookie of serialized.cookies) {
+                        if (cookie.domain && cookie.path && cookie.key && cookie.value) {
+                            const url = `https://${cookie.domain}${cookie.path}`;
+                            this.jar.setCookieSync(`${cookie.key}=${cookie.value}`, url);
+                        }
+                    }
+                }
+            }
+        }
+        else {
+            this.jar = new _1.Cookies();
+        }
     }
     async init() {
         if (this.isReady)
