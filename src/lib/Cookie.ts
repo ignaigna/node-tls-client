@@ -24,18 +24,26 @@ export class Cookies extends CookieJar {
    *      "cookieB": "valueB"
    *    }
    *  }
-   */
-  public fetchAllCookies() {
-    const cookies = this.serializeSync().cookies;
+   */  public fetchAllCookies() {
+    const serialized = this.serializeSync();
+    const cookies = serialized?.cookies;
+
+    if (!cookies) {
+      return {};
+    }
 
     return cookies.reduce((acc, cookie) => {
+      if (!cookie.domain || !cookie.path || !cookie.key || !cookie.value) {
+        return acc;
+      }
+      
       const url = `https://${cookie.domain}${cookie.path}`;
       if (!acc[url]) {
         acc[url] = {};
       }
       acc[url][cookie.key] = cookie.value;
       return acc;
-    }, {});
+    }, {} as Record<string, Record<string, string>>);
   }
 
   /**

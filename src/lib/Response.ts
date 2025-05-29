@@ -29,11 +29,10 @@ export class Response {
   public async text(): Promise<string> {
     return this.response.body.toString();
   }
-
   /**
    * Returns the body of the response as a JSON object.
    *
-   * @typeparam T - The type of the JSON object.
+   * @template T - The type of the JSON object.
    * @returns A promise that resolves with the body of the response as a JSON object.
    */
   public async json<T>(): Promise<T> {
