@@ -56,11 +56,10 @@ export class Session {
   private timeout: number | null;
   private disableIPV6: boolean;
   private disableIPV4: boolean;
-  private jar: Cookies = new Cookies();
+  private jar: Cookies;
   private pool?: workerpool.Pool;
 
   public isReady: boolean = false;
-
   constructor(options?: SessionOptions) {
     this.sessionId = randomUUID();
     this.proxy = options?.proxy || null;
@@ -92,6 +91,25 @@ export class Session {
     this.timeout = options?.timeout || 30 * 1000;
     this.disableIPV4 = options?.disableIPV4 ?? false;
     this.disableIPV6 = options?.disableIPV6 ?? false;
+    
+    if (options?.cookieJar) {
+      if (options.cookieJar instanceof Cookies) {
+        this.jar = options.cookieJar;
+      } else {
+        this.jar = new Cookies();
+        const serialized = options.cookieJar.serializeSync();
+        if (serialized?.cookies) {
+          for (const cookie of serialized.cookies) {
+            if (cookie.domain && cookie.path && cookie.key && cookie.value) {
+              const url = `https://${cookie.domain}${cookie.path}`;
+              this.jar.setCookieSync(`${cookie.key}=${cookie.value}`, url);
+            }
+          }
+        }
+      }
+    } else {
+      this.jar = new Cookies();
+    }
   }
 
   public async init(): Promise<boolean> {

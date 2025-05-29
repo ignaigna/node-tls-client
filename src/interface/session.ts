@@ -1,4 +1,5 @@
 import { IncomingHttpHeaders, OutgoingHttpHeaders } from "http";
+import { CookieJar } from "tough-cookie";
 
 /**
  * Represents various settings for HTTP/2 (h2) protocol.
@@ -344,11 +345,17 @@ export interface SessionOptions {
    * If true, IPv4 is disabled for the session requests.
    */
   disableIPV4?: boolean;
-
   /**
    * If true, IPv6 is disabled for the session requests.
    */
   disableIPV6?: boolean;
+
+  /**
+   * Custom cookie jar instance to use for the session.
+   * If provided, the session will use this jar instead of creating a new one.
+   * Can be a CookieJar from tough-cookie or a Cookies instance.
+   */
+  cookieJar?: CookieJar;
 }
 
 /**
