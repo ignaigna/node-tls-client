@@ -40,18 +40,28 @@ export class Download {
     const i = Math.floor(Math.log(bytes) / Math.log(k));
     return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + " " + sizes[i];
   }
-
   private progress(downloaded: number, total: number) {
     const percentage = (downloaded / total) * 100;
     const progress = Math.floor(percentage / 2);
     const bar = "█".repeat(progress) + " ".repeat(50 - progress);
-    process.stdout.clearLine(0);
-    process.stdout.cursorTo(0);
-    process.stdout.write(
-      `${logger.stamp} DOWNLOADING:[${bar}] ${percentage.toFixed(
-        2
-      )}% (${this.formatBytes(downloaded)} / ${this.formatBytes(total)})`
-    );
+    
+    if (process.stdout.isTTY && typeof process.stdout.clearLine === 'function' && typeof process.stdout.cursorTo === 'function') {
+      process.stdout.clearLine(0);
+      process.stdout.cursorTo(0);
+      process.stdout.write(
+        `${logger.stamp} DOWNLOADING:[${bar}] ${percentage.toFixed(
+          2
+        )}% (${this.formatBytes(downloaded)} / ${this.formatBytes(total)})`
+      );
+    } else {
+      if (Math.floor(percentage) % 10 === 0 || percentage === 100) {
+        console.log(
+          `${logger.stamp} DOWNLOADING: ${percentage.toFixed(
+            2
+          )}% (${this.formatBytes(downloaded)} / ${this.formatBytes(total)})`
+        );
+      }
+    }
   }
 
   private async download(url: string, file: WriteStream): Promise<void> {
