@@ -20,7 +20,8 @@ export declare class Cookies extends CookieJar {
      *      "cookieB": "valueB"
      *    }
      *  }
-     */ fetchAllCookies(): Record<string, Record<string, string>>;
+     */
+    fetchAllCookies(): Record<string, Record<string, string>>;
     /**
      * Fetches the cookies for a given URL as an object.
      *

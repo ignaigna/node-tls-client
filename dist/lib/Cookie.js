@@ -25,7 +25,8 @@ class Cookies extends tough_cookie_1.CookieJar {
      *      "cookieB": "valueB"
      *    }
      *  }
-     */ fetchAllCookies() {
+     */
+    fetchAllCookies() {
         const serialized = this.serializeSync();
         const cookies = serialized?.cookies;
         if (!cookies) {
