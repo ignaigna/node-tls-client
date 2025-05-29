@@ -22,16 +22,16 @@
     "cloudflare"
   ],
   "devDependencies": {
-    "@types/node": "^20.12.12",
+    "@types/node": "^22.15.24",
     "@types/tough-cookie": "^4.0.5",
-    "typedoc": "^0.25.13",
-    "typescript": "^5.4.5"
+    "typedoc": "^0.28.5",
+    "typescript": "^5.8.3"
   },
   "dependencies": {
-    "koffi": "^2.8.9",
-    "tough-cookie": "^4.1.4",
-    "tslib": "^2.6.2",
-    "workerpool": "^9.2.0"
+    "koffi": "^2.11.0",
+    "tough-cookie": "^5.1.2",
+    "tslib": "^2.8.1",
+    "workerpool": "^9.3.0"
   },
   "files": [
     "dist",
