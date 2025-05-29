@@ -24,7 +24,8 @@ export class Cookies extends CookieJar {
    *      "cookieB": "valueB"
    *    }
    *  }
-   */  public fetchAllCookies() {
+   */
+  public fetchAllCookies() {
     const serialized = this.serializeSync();
     const cookies = serialized?.cookies;
 
